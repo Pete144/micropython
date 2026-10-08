@@ -451,6 +451,22 @@ static mp_obj_t network_wlan_status(size_t n_args, const mp_obj_t *args) {
             esp_exceptions(esp_wifi_sta_get_ap_info(&info));
             return MP_OBJ_NEW_SMALL_INT(info.rssi);
         }
+        case (uintptr_t)MP_OBJ_NEW_QSTR(MP_QSTR_bssid): {
+           // return BSSID of associated AP, only in STA mode
+           require_if(args[0], ESP_IF_WIFI_STA);
+
+           wifi_ap_record_t info;
+           esp_exceptions(esp_wifi_sta_get_ap_info(&info));
+           return mp_obj_new_bytes(info.bssid, sizeof(info.bssid));
+        }
+        case (uintptr_t)MP_OBJ_NEW_QSTR(MP_QSTR_channel): {
+          // return channel of associated AP, only in STA mode
+          require_if(args[0], ESP_IF_WIFI_STA);
+
+         wifi_ap_record_t info;
+         esp_exceptions(esp_wifi_sta_get_ap_info(&info));
+         return MP_OBJ_NEW_SMALL_INT(info.primary);
+        }
         default:
             mp_raise_ValueError(MP_ERROR_TEXT("unknown status param"));
     }
